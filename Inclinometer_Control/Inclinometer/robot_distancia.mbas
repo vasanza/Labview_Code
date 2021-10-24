@@ -1,0 +1,238 @@
+program robot_distancia
+
+'////////////////////////////////////////////////////////////////////////////////
+' VARIABLE PARA EL USO DE LOS SERVOS
+dim    Servo        as byte
+dim    Salidas      as word
+dim    Index        as word
+dim    Paso         as byte
+dim    Tiempo       as word
+dim    flanco       as byte
+dim    MaskPort     as word
+dim    n_servo      as word
+'////////////////////////////////////////////////////////////////////////////////
+dim    distancia    as word
+dim    i            as byte
+dim    cadena       as char[16]
+'////////////////////////////////////////////////////////////////////////////////
+' VARIABLES PARA EL USO DE I2C
+dim Address_mem as byte
+dim Clear_buffer as byte
+dim Rx_Buffer as byte
+dim Tx_Data as byte
+dim posicion as byte
+'////////////////////////////////////////////////////////////////////////////////
+
+'////////////////////////////////////////////////////////////////////////////////
+dim received_byte as byte
+dim viajero_usart as byte
+dim inicio_usart as byte
+dim ide_usart as byte
+dim index_usart as byte
+dim pos_usart as byte
+'////////////////////////////////////////////////////////////////////////////////
+dim termino as byte
+'////////////////////////////////////////////////////////////////////////////////
+
+sub procedure interrupt
+
+    if TestBit(INTCON,T0IF)=1 then
+         if Paso=0 then
+              MaskPort= (salidas and n_servo)
+              PORTB.5 = MaskPort.0
+              Paso=1
+              TMR0=0xda
+         else
+              if Paso=1 then
+                   TMR0=(255-(Servo-2))
+                   Paso=2
+              else
+                   PORTB.5=0
+                   TMR0=(Servo-2)
+                   n_servo=n_servo<<1
+                   if n_servo=0x0200 then
+                        n_servo=1
+                   end if
+                   paso=0
+              end if
+         end if
+         ClearBit(INTCON,T0IF)
+    end if
+'     else
+' COMUNICAION USART
+' 0xAA - 0xCC - servo - posc - 0xDD
+
+     if TestBit(PIR1,RCIF) = 1 then
+          received_byte = Uart1_Read
+          select case viajero_usart
+               case 1
+                         if 0xAA = received_byte then
+                              viajero_usart = 2
+                         else
+                              viajero_usart = 1
+                              termino=0
+                         end if
+               case 2
+                         if 0xCC = received_byte then
+                              viajero_usart = 3
+                         else
+                              viajero_usart = 1
+                              termino= 0
+                         end if
+               case 3
+                         index_usart= received_byte
+                         viajero_usart= 4
+               case 4
+                         pos_usart= received_byte
+                         viajero_usart= 5
+               case 5
+                         if 0xDD = received_byte then
+                              termino=1
+                         end if
+                         viajero_usart = 1
+          end select
+          ClearBit(PIR1,RCIF)
+     end if
+'     else
+'///////////////////////////////////////////////////////////////////////////////
+
+     if INTCON.INTF = 1 then            ' External interupt (RB0 pin)
+          if flanco=1 then
+               TMR1L = 0x00
+               TMR1H = 0x00
+               T1CON.TMR1ON=1
+               OPTION_REG.INTEDG=0
+               flanco = 0
+          else
+               T1CON.TMR1ON=0
+               OPTION_REG.INTEDG=1
+               Tiempo = TMR1L + TMR1H
+               TMR1L = 0x00
+               TMR1H = 0x00
+               flanco=1
+          end if
+          Clearbit(INTCON,INTF)
+     end if
+'     end if
+'     end if
+end sub
+
+sub procedure srf05_pulso
+'     INTCON = INTCON and %11011111
+     portc.5=1
+     delay_us(50)
+     portc.5=0
+     delay_ms(50)
+'     INTCON = INTCON or %00100000
+     distancia = Tiempo*15
+     distancia = distancia/28
+end sub
+
+sub procedure led
+     porta = 0x00
+     delay_ms(250)
+     porta = 0xff
+     delay_ms(250)
+     porta = 0x00
+     delay_ms(250)
+     porta = 0xff
+     delay_ms(250)
+     porta = 0x00
+end sub
+
+sub procedure rotar_servo
+     for i=20 to 255
+          Servo = i
+'          PORTA = Servo
+          srf05_pulso
+          if distancia < Index then
+               porta = 0x0f
+               delay_ms(10)
+          end if
+'          delay_ms(32)
+          porta = 0xf0
+     next i
+     SetBit(PORTA,0)
+     for i=20 to 255
+          Servo = 275-i
+'          PORTA = Servo
+          srf05_pulso
+          if distancia < Index then
+               porta = 0x0f
+               delay_ms(10)
+          end if
+          porta = 0xf0
+'          delay_ms(10)
+     next i
+     ClearBit(PORTA,0)
+end sub
+
+main:
+'     OSCCON = %01110101
+     OPTION_REG = %10000000
+     INTCON = %11000000
+     PIE1 = %00000000
+     
+     TRISA= %00000000
+     TRISB= %00000001
+     TRISC= %10000000
+     
+     ANSEL= %00000000
+     ANSELH= %00000000
+'''''''''''''''''''''''''''''''''''''''''''
+' Servo motor
+     OPTION_REG = OPTION_REG or %00000011   ' prescalador 128
+     INTCON = INTCON or %00100000
+     TMR0 = 0xda
+     paso = 0
+     Servo = 0x80
+     Salidas = 0xffff
+     n_servo = 0x0001
+'''''''''''''''''''''''''''''''''''''''''''
+' ultrasonico
+     OPTION_REG = OPTION_REG or %01000000   ' interrupcion rb0
+     INTCON = INTCON or %00010000
+     T1CON= %00110001
+     PIE1 = %00000000
+     flanco = 1
+     Tiempo = 0
+     TMR1L = 0X00
+     TMR1H = 0X00
+'''''''''''''''''''''''''''''''''''''''''''
+' usart rs232
+'     PIE1 = PIE1 or %00100000
+     UART1_Init(9600)
+'''''''''''''''''''''''''''''''''''''''''''
+
+     PORTA= %00000000
+     PORTB= %00000000
+     PORTC= %00000000
+
+     PWM1_Init(5000)
+     PWM2_Init(5000)
+     PWM1_Start()
+     PWM2_Start()
+     
+     PWM1_Set_Duty(0XFF)
+     PWM2_Set_Duty(0XFF)
+     
+'     SetBit(PORTB,1) ' atras
+     ClearBit(PORTB,1) ' adelante
+'     SetBit(PORTB,2) ' atras
+     ClearBit(PORTB,2) ' adelante
+
+     led()
+     Index = 0x0014
+     while true
+'          PORTA = Servo
+          srf05_pulso()
+          delay_ms(50)
+          PORTA = distancia
+'          WordToStr(distancia,cadena)
+'          uart1_write_text(cadena)
+'          uart1_write_text("cm ")
+'           rotar_servo
+'           Servo = 0x20
+          delay_ms(100)
+     wend
+end.

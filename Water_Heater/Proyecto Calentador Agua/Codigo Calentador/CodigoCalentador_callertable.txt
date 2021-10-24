@@ -1,0 +1,13 @@
+interrupt
+	USART_Read
+	USART_Data_Ready
+main
+	Div_16x16_U
+	Mul_16x16_U
+	USART_Init
+	Usart_Write_Text
+		USART_Write
+	ByteToStr
+		Div_8x8_U
+	Adc_Read
+		Delay_22us

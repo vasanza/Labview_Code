@@ -1,0 +1,32 @@
+[DeviceName]
+Value=P16F886
+[DeviceClock]
+Value=8
+[MainUnit]
+Value=distancia_nuevo.pbas
+[DeviceFlags]
+Count=8
+Value0=_HS_OSC = $3FFA
+Value1=_INTRC_OSC_NOCLKOUT = $3FFC
+Value2=_INTOSCIO = $3FFC
+Value3=_WDT_OFF = $3FF7
+Value4=_MCLRE_OFF = $3FDF
+Value5=_BOR_OFF = $3CFF
+Value6=_FCMEN_OFF = $37FF
+Value7=_LVP_OFF = $2FFF
+[BuildSimDebug]
+Build=0
+SimDebug=0
+[ProjectFiles]
+Count=0
+[OtherFiles]
+Count=0
+[TabIndex]
+Value=0
+[SearchPath]
+Count=3
+Value0=C:\Archivos de programa\Mikroelektronika\mikroBasic\Defs\
+Value1=C:\Archivos de programa\Mikroelektronika\mikroBasic\Uses\p16\
+Value2=C:\Documents and Settings\BENAVIDES DURAN\Escritorio\robot_distancia\
+[EEPROMinfo]
+isused=0

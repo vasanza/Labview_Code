@@ -1,0 +1,36 @@
+[DeviceName]
+Value=P16F886
+[DeviceClock]
+Value=4
+[MainUnit]
+Value=CodigoSisterna.pbas
+[DeviceFlags]
+Count=11
+Value0=_INTOSCIO = $3FFC
+Value1=_WDT_OFF = $3FF7
+Value2=_PWRTE_OFF = $3FFF
+Value3=_MCLRE_OFF = $3FDF
+Value4=_CP_OFF = $3FFF
+Value5=_CPD_OFF = $3FFF
+Value6=_BOR_OFF = $3CFF
+Value7=_IESO_OFF = $3BFF
+Value8=_FCMEN_OFF = $37FF
+Value9=_LVP_OFF = $2FFF
+Value10=_DEBUG_OFF = $3FFF
+[BuildSimDebug]
+Build=0
+SimDebug=0
+[ProjectFiles]
+Count=0
+[OtherFiles]
+Count=1
+Value0=C:\Users\IDEASTECHNOLOGY\Desktop\Proyecto Sisterna\Codigo Sisterna\CodigoSisterna.pbas
+[TabIndex]
+Value=0
+[SearchPath]
+Count=3
+Value0=C:\Program Files\Mikroelektronika\mikroBasic\Defs\
+Value1=C:\Program Files\Mikroelektronika\mikroBasic\Uses\p16\
+Value2=C:\Users\IDEASTECHNOLOGY\Desktop\Proyecto Sisterna\Codigo Sisterna\
+[EEPROMinfo]
+isused=0

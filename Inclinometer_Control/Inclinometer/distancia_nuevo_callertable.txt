@@ -1,0 +1,14 @@
+interrupt
+	USART_Read
+main
+	PWM2_Init
+	PWM1_Init
+	USART_Init
+	rotar_servo
+	led
+	PWM2_Change_Duty
+		Mul_16x16_U
+	PWM1_Change_Duty
+		Mul_16x16_U
+	PWM2_Start
+	PWM1_Start

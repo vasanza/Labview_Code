@@ -1,0 +1,181 @@
+program motor
+
+'////////////////////////////////////////////////////////////////////////////////
+' VARIABLE PARA EL USO DE LOS SERVOS
+dim    Servo        as byte
+dim    Salidas      as word
+dim    Index        as word
+dim    Paso         as byte
+'dim    Tiempo       as word
+'dim    flanco       as byte
+dim    MaskPort     as word
+dim    n_servo      as word
+'////////////////////////////////////////////////////////////////////////////////
+dim    analogico    as word
+dim    rx_analogico as word
+dim    temperatura  as word
+dim    muestras     as byte
+dim    temp_ac      as word
+dim    temp_prom    as word
+dim    txt          as string[4]
+dim    adxl_analogico    as word
+dim    temp_adxl_analogico as word
+'dim    cadena       as char[16]
+
+dim    temp_var     as word
+'dim    angulo       as byte
+'dim    velocidad_1  as byte
+'dim    direccion_1  as byte
+'dim    velocidad_2  as byte
+'dim    direccion_2  as byte
+'dim    distancia_v  as byte
+'///////////////////////////////////////////////////////////////////////////////
+' VARIABLES COMUNICACION USART
+dim received_byte as byte
+dim viajero_uart as byte
+dim usart_receive as byte
+'dim inicio_usart as byte  ' 0xAB
+'dim ide_usart as byte     ' 0XBC
+'dim end_usart as byte     ' 0XCD
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'dim termino as byte
+dim intensidad as byte
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'dim index_usart as byte
+'dim pos_usart as byte
+'////////////////////////////////////////////////////////////////////////////////
+
+'////////////////////////////////////////////////////////////////////////////////
+
+sub procedure interrupt
+
+     if TestBit(PIR1,TMR1IF)=1 then
+          if Paso=0 then
+               MaskPort= (salidas and n_servo)
+               PORTC.0 = MaskPort.0
+'               PORTB.0 = PORTB.0 XOR 1
+               Paso=1
+'               TMR1L=0x6A
+'               TMR1H=0XFF
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+               TMR1L=0x1F
+               TMR1H=0XFF
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+          else    '65086 1.8ms
+                  '65361 0.3ms
+               if Paso=1 then
+'                    temp_var= 65148 + Servo + (Servo/2)
+                    temp_var= 65276 + Servo
+                    TMR1L= lo(temp_var)
+                    TMR1H= hi(temp_var)
+                    Paso=2
+               else
+                    PORTC.0=0
+'                    temp_var= 65530 - Servo - (Servo/2)
+                    temp_var= 65530 - Servo
+                    TMR1L= lo(temp_var)
+                    TMR1H= hi(temp_var)
+                    n_servo=n_servo<<1
+                    if n_servo=0x0400 then
+                         n_servo=1
+                    end if
+                    paso=0
+               end if
+          end if
+          ClearBit(PIR1,TMR1IF)
+     end if
+
+     if( PIR1.RCIF = 1 )then
+          usart_receive = UART1_Read()
+          select case viajero_uart
+               case 1
+                    if 0xb7 = usart_receive then
+                         viajero_uart = 2
+'                         porta = usart_receive
+                    else
+                         viajero_uart = 1
+                    end if
+               case 2
+                    Servo = usart_receive
+                    viajero_uart = 1
+          end select
+          ClearBit(PIR1,RCIF)   ' Si el dato a llegado limpio la bandera de recepcion
+          SetBit(PIE1,RCIE)     ' Habilitar nuevamente la interrupcion por USART
+     end if
+end sub
+
+sub procedure led
+     porta = 0x00
+     delay_ms(250)
+     porta = 0xff
+     delay_ms(250)
+     porta = 0x00
+     delay_ms(250)
+     porta = 0xff
+     delay_ms(250)
+     porta = 0x00
+end sub
+
+main:
+     OSCCON = %01110101
+     OPTION_REG=%01000101
+     INTCON = %11000000
+     PIE1 = %00000000
+
+     TRISA= %00000011
+     TRISB= %00000000
+     TRISC= %10000000
+
+     ANSEL= %00000011
+     ANSELH= %00000000
+'''''''''''''''''''''''''''''''''''''''''''
+' Servo motor
+     Servo = 0xff
+     T1CON = %00110001
+     PIE1 = PIE1 OR %00000001
+     TMR1L = 0xFF
+     TMR1H = 0xFF
+     paso = 0
+     Salidas = 0xffff
+     n_servo = 0x0001
+'''''''''''''''''''''''''''''''''''''''''''
+' bonbillo
+'''''''''''''''''''''''''''''''''''''''''''
+' usart rs232
+     PIE1 = PIE1 or %00100000
+     PIR1 = %00000000
+     UART1_Init(9600)
+'''''''''''''''''''''''''''''''''''''''''''
+
+     PORTA= %00000000
+     PORTB= %00000000
+     PORTC= %00000000
+
+     TMR0 = 0X00
+     intensidad=5
+     muestras=0
+     temp_ac=0
+     temp_prom=0
+     viajero_uart = 1
+
+     led()
+
+     while true
+         temp_ac = 0
+         temp_prom = 0
+         adxl_analogico = 0
+         adxl_analogico = 0
+         for muestras=1 to 64
+              analogico = Adc_Read(0)
+              temp_adxl_analogico = Adc_Read(1)
+              temp_ac = temp_ac + analogico
+              adxl_analogico = adxl_analogico + temp_adxl_analogico
+         next muestras
+         temp_prom = (temp_ac/64)
+         adxl_analogico = (adxl_analogico/64)
+'         Servo = temp_prom>>2
+         portb = adxl_analogico>>2
+         UART1_Write(adxl_analogico>>2)
+         Delay_ms(200)
+     wend
+end.

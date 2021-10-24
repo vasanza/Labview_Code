@@ -1,0 +1,14 @@
+Line	MessageNo	File Name
+0	1	mBPic.exe -DBG -pP16F886 -MSF -Y -DL -O11111114 -fo8 -N"D:\IDEAS&TECNOLOGIA\MAQUETAS I&T\Jonathan Jaen\codigo jaen\banda.mbppi" -SP"C:\Archivos de programa\Mikroelektronika\mikroBasic PRO for PIC\defs\" -SP"C:\Archivos de programa\Mikroelektronika\mikroBasic PRO for PIC\Uses\P16\" -SP"D:\IDEAS&TECNOLOGIA\MAQUETAS I&T\Jonathan Jaen\codigo jaen\" -SP"D:\IDEAS&TECNOLOGIA\MAQUETAS I&T\Buscador de calor Boris Chilan\BANDA TRANSPORTADORA\" -SP"C:\Documents and Settings\BENAVIDES DURAN\Escritorio\BANDA TRANSPORTADORA\" "__Lib_Math.mcl" "__Lib_MathDouble.mcl" "__Lib_System.mcl" "__Lib_Delays.mcl" "__Lib_CType.mcl" "__Lib_String.mcl" "__Lib_Conversions.mcl" "__Lib_Time.mcl" "__Lib_Trigon.mcl" "__Lib_Trigonometry.mcl" "__Lib_Button.mcl" "__Lib_Keypad4x4.mcl" "__Lib_Manchester.mcl" "__Lib_OneWire.mcl" "__Lib_PS2.mcl" "__Lib_Sound.mcl" "__Lib_SoftI2C.mcl" "__Lib_SoftSPI.mcl" "__Lib_SoftUART.mcl" "__Lib_ADC_88X.mcl" "__Lib_EEPROM.mcl" "__Lib_FLASH_RW.mcl" "__Lib_I2C_c34.mcl" "__Lib_PWM_c21.mcl" "__Lib_SPI_c345.mcl" "__Lib_UART_c67.mcl" "__Lib_PortExpander.mcl" "__Lib_CANSPI.mcl" "__Lib_CF.mcl" "__Lib_GlcdFonts.mcl" "__Lib_Glcd.mcl" "__Lib_LcdConsts.mcl" "__Lib_Lcd.mcl" "__Lib_RS485.mcl" "__Lib_T6963C.mcl" "__Lib_SPIGlcd.mcl" "__Lib_SPILcd.mcl" "__Lib_SPILcd8.mcl" "__Lib_SPIT6963C.mcl" "__Lib_EthEnc28j60.mcl" "banda.mbas"	 
+diagnostics: 0	132	Compilation Started	D:\IDEAS&TECNOLOGIA\MAQUETAS I&T\JONATHAN JAEN\CODIGO JAEN\banda.mbas
+hint: 1	1015	Hint: Compiling unit "D:\IDEAS&TECNOLOGIA\MAQUETAS I&T\JONATHAN JAEN\CODIGO JAEN\banda.mbas"	banda.mbas
+hint: 159	1006	Warning: Generated baud rate is 9615 bps (error = 0.16 percent)	banda.mbas
+hint: 207	1010	Hint: Unit "banda.mbas" has been recompiled	banda.mbas
+diagnostics: 0	133	Compiled Successfully	D:\IDEAS&TECNOLOGIA\MAQUETAS I&T\JONATHAN JAEN\CODIGO JAEN\banda.mbas
+diagnostics: 0	138	All files Compiled in 266 ms	 
+hint: 0	1141	Used RAM (bytes): 26 (7%)  Free RAM (bytes): 326 (93%)	Used RAM (bytes): 26 (7%)  Free RAM (bytes): 326 (93%)
+hint: 0	1141	Used ROM (program words): 498 (6%)  Free ROM (program words): 7694 (94%)	Used ROM (program words): 498 (6%)  Free ROM (program words): 7694 (94%)
+diagnostics: 0	142	Project Linked Successfully	BANDA.mbppi
+diagnostics: 0	139	Linked in 2031 ms	 
+diagnostics: 0	140	Project 'BANDA.mbppi' completed: 3156 ms	 
+diagnostics: 0	103	Finished successfully: 02 feb 2011, 17:24:43	banda.mbppi

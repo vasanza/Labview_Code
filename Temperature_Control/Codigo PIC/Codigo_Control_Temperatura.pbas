@@ -1,0 +1,74 @@
+program Codigo_Control_Temperatura
+'*****  Declaración de Variables *****
+ dim analogico,temperatura as word
+ dim unidad,decena,centena as byte
+ dim txt as char[5]
+
+'*****   Programa principal main  *****
+main:
+  OPTION_REG=%10000000 ' Configuracion de Puertos analogicos / digitales AN0 - AN13
+  ANSEL =  %00000000           'REGISTRO CONFIG. O DIGITAL, 1 ANALOGICO
+  ANSELH = %00000010           'REGISTRO CONFIG. O DIGITAL, 1 ANALOGICO
+
+  ' Configuracion de Puertos como entradas / salidas
+  trisa  = %00000000           ' Configuracion IN/OUT PORTA
+  trisb  = %00001000           ' Configuracion IN/OUT PORTB
+  trisc  = %10000000           ' Configuracion IN/OUT PORTC
+  
+  USART_Init(9600)
+  
+  ' Reset de salidas
+  PORTA  = %00000000           ' Inicializacion PORTA
+  PORTB  = %00000000           ' Inicializacion PORTC
+  PORTC  = %00000000           ' Inicializacion PORTC
+
+
+  'Configuramos de pines a utilizar para LCD
+  Lcd_Config(PORTA,6,5,4,3,PORTA,0,1,2) 'Lcd_Config(ddata_portd,db3, db2, db1,
+                                        'db0,ctrl_port ,rs, ctrl_rw enable)
+  Lcd_Cmd(Lcd_CURSOR_OFF)               'Lcd_Cmd(commando)
+  LCD_Cmd(LCD_CLEAR)
+  
+
+  Lcd_Out(1, 1,"Medidor Temperatura")
+  ' Lazo infinito Bucle While
+  while true
+
+         analogico = Adc_Read(9)
+         temperatura=(analogico*100/204)
+         
+         unidad=((temperatura/100) mod 10)+ 48
+         decena=((temperatura/10) mod 10) + 48
+         centena=(temperatura mod 10) + 48
+         
+
+         if(temperatura>99)then
+
+          Lcd_Out(2,6,"T=")
+          Lcd_Chr(2,8,unidad )
+          Lcd_Chr(2,9,decena )
+          Lcd_Chr(2,10,centena )
+          Lcd_Out(2,11," *C")
+          USART_Write (unidad )
+          USART_Write(decena)
+          USART_Write (centena)
+
+         else
+
+          Lcd_Out(2,6,"T=")
+          Lcd_Chr(2,8,decena)
+          Lcd_Chr(2,9,centena)
+          Lcd_Out(2,11," *C")
+          USART_Write(decena)
+          USART_Write (centena)
+         end if
+          
+          USART_Write (unidad )
+          USART_Write(decena)
+          USART_Write (centena)
+          USART_Write(10)
+          USART_Write(13)
+          Delay_ms(250)
+
+  wend
+end.

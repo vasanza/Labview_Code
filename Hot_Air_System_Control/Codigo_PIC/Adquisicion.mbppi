@@ -1,0 +1,85 @@
+[DEVICE]
+Name=P16F886
+Clock=4000000
+[MEMORY_MODEL]
+Value=0
+[BUILD_TYPE]
+Value=0
+[ACTIVE_TAB]
+Value=Adquisicion.mbas
+[USE_EEPROM]
+Value=0
+[EEPROM_DEFINITION]
+Value=
+[FILES]
+Count=1
+File0=Adquisicion.mbas
+[BINARIES]
+Count=0
+[IMAGES]
+Count=0
+[OPENED_FILES]
+Count=1
+File0=Adquisicion.mbas
+[OTHER_FILES]
+Count=0
+[SEARCH_PATH]
+Count=14
+Path0=C:\Archivos de programa\Mikroelektronika\mikroBasic PRO for PIC\defs\
+Path1=C:\Archivos de programa\Mikroelektronika\mikroBasic PRO for PIC\Uses\P16\
+Path2=D:\IDEAS&TECNOLOGIA\MAQUETAS I&T\Sistema aire cariente\Codigo_PIC\
+Path3=D:\IDEAS&TECNOLOGIA\MAQUETAS I&T\Seguidor de solar Final\Codigo_PIC\
+Path4=D:\Seguidor de solar 2\Codigo_PIC\
+Path5=C:\Documents and Settings\Jorge Luis\Escritorio\Seguidor de solar\Codigo_PIC\
+Path6=C:\Program Files\Mikroelektronika\mikroBasic PRO for PIC\defs\
+Path7=C:\Program Files\Mikroelektronika\mikroBasic PRO for PIC\Uses\P16\
+Path8=C:\Users\IDEASTECHNOLOGY\Desktop\Seguidor de solar\Codigo_PIC\
+Path9=C:\Users\IDEASTECHNOLOGY\Desktop\Maqueta Motor DC\Codigo_PIC\
+Path10=C:\Users\IDEASTECHNOLOGY\Desktop\Codigo_PIC\
+Path11=C:\Documents and Settings\Jorge Luis\Escritorio\Proformas\Proyecto Identificacion de Sistemas Victor Asanza - Xavier Barcia - Jorge Fariño\Codigo_PIC\
+Path12=C:\Documents and Settings\Administrador\Escritorio\SISTEMA DE ADQUISICION Y ALMACENAMIENTO DE DATOS CON MATLAB\Codigo PIC Adquisicion\codigo Yasser\
+Path13=C:\Documents and Settings\Administrador\Escritorio\SISTEMA DE ADQUISICION Y ALMACENAMIENTO DE DATOS CON MATLAB\Codigo PIC Adquisicion\codigo\
+[HEADER_PATH]
+Count=0
+[HEADERS]
+Count=0
+[PLDS]
+Count=0
+[Useses]
+Count=36
+File0=ADC
+File1=Button
+File2=C_Type
+File3=CAN_SPI
+File4=Compact_Flash
+File5=Conversions
+File6=EEPROM
+File7=FLASH
+File8=Glcd_Fonts
+File9=Glcd
+File10=I2C
+File11=Keypad4x4
+File12=Lcd_Constants
+File13=Lcd
+File14=Manchester
+File15=One_Wire
+File16=Port_Expander
+File17=PS2
+File18=PWM
+File19=RS485
+File20=Software_I2C
+File21=Software_SPI
+File22=Software_UART
+File23=Sound
+File24=SPI_Ethernet
+File25=SPI_Glcd
+File26=SPI_Lcd
+File27=SPI_Lcd8
+File28=SPI_T6963C
+File29=SPI
+File30=String
+File31=T6963C
+File32=Time
+File33=Trigon
+File34=Trigonometry
+File35=UART

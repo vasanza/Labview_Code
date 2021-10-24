@@ -1,0 +1,133 @@
+
+'*******************     www.ideastechnology.com      **************************
+'
+' * Nombre proyecto:
+'     SISTEMA DE ADQUISICION Y ALMACENAMIENTO DE DATOS CON MATLAB
+' * Descripcion:
+'     Este proyecto consiste en leer un dato analogico proveniente de un potenciometro
+'     para controlar el nivel de PWM que le aplicamos al motor por medio del puente H
+'     la señal digital que proviene del encoder optico es procesada y tranformada
+'     a revoluciones por minuto (RPM) y posteriormente enviada por comunicacion serial
+'     RS232 al computador donde MATLAB se encargara de tomar los datos de (PWM y RPM).
+' * Configuraciones:
+'     Microcontrolador:    PIC16F886
+'     Oscillator:          INT_RC_OSC_NOCLKOUT, 4MHz
+'*******************************************************************************
+
+'*****         Nombre proyecto       *****
+program Adquisicion
+'*****  Declaración de Variables *****
+ dim mtempin,mtempout as word
+ dim velocidad,tempin,tempout,n,receive as byte
+ dim txt as string[4]
+ dim recivio as byte
+ dim velocidad_2 as word
+ dim automatico as byte
+ dim salto as byte
+
+'*****   Programa principal main  *****
+'-----------------------------------------
+sub procedure interrupt                   ' Interrupt service routine
+     if (UART1_Data_Ready() = 1) then
+        porta.2=1
+        delay_ms(300)
+        porta.2=0
+        delay_ms(300)
+        receive = UART1_Read()
+        velocidad=receive
+        'select case salto
+'             case 1
+'                  if receive = 0xA0 then
+'                       salto =2
+'                  else
+'                       salto =1
+'                  end if
+'             case 2
+'                  salto =3
+'                  velocidad= (receive*254)/9
+''                  portA=receive
+'                  recivio = 1
+'             case 3
+'                  salto =1
+'                  automatico = receive   ' automatico = 1 y no automatico = 0
+'
+'        end select
+     end if
+end sub
+
+'-*---------------------------------------
+main:
+  OPTION_REG=%10000000
+  INTCON = %11000000       ' Enable external interrupts bit(7) and bit(6) de permiso q no se controlan con INTCON
+  'T1CON = $30
+  'PIR1.TMR1IF = 0            ' clear TMR1IF
+  'TMR1H = $0B                ' initialize Timer1 register
+  'TMR1L = $DB
+  PIE1 = %00100000         ' enable Timer1 interrupt
+   
+  ' Configuracion de Puertos analogicos / digitales AN0 - AN13
+  ANSEL =  %00000001           'REGISTRO CONFIG. O DIGITAL, 1 ANALOGICO
+  ANSELH = %00001010           'REGISTRO CONFIG. O DIGITAL, 1 ANALOGICO
+
+  ' Configuracion de Puertos como entradas / salidas
+  trisa  = %00000001           ' Configuracion IN/OUT PORTA
+  trisb  = %00011000           ' Configuracion IN/OUT PORTB
+  trisc  = %10000000           ' Configuracion IN/OUT PORTC
+
+  ' Reset de salidas
+  PORTA  = %00000000           ' Inicializacion PORTA
+  PORTC  = %00000000           ' Inicializacion PORTC
+
+  'USART
+  Uart1_Init(9600)                 ' Initialize USART module
+  ' Lazo infinito Bucle While
+  PWM1_Init(1000)                    ' Initialize PWM1 module at 5KHz
+  PWM2_Init(1000)                    ' Initialize PWM2 module at 5KHz
+
+  PWM1_Start()                       ' start PWM1
+  PWM2_Start()                       ' start PWM2
+  PWM1_Set_Duty(0)
+  PWM2_Set_Duty(0)
+  
+  n=0
+  automatico=0
+  salto = 1
+  while true
+  n=0
+  'velocidad=ADC_Read(0)
+  while (n<40)
+'         if automatico = 0 then
+'              velocidad=ADC_Read(0)
+'         end if
+         tempin = ADC_Read(9)
+         delay_us(5)
+         tempout = ADC_Read(11)
+         delay_us(5)
+         mtempin=mtempin+tempin
+         mtempout=mtempout+tempout
+         n=n+1
+  wend
+
+  mtempin=(mtempin/40)*100/230
+  mtempout=(mtempout/40)*100/230
+'      if recivio= 1 then
+'           PWM1_Set_Duty(velocidad)
+'           PWM2_Set_Duty(velocidad)
+'           recivio=0
+'      end if
+
+       portb.1=1
+       PWM1_Set_Duty(Velocidad*28)
+
+       portb.2=1
+       PWM2_Set_Duty(Velocidad*28)
+       
+        UART1_Write_text("i")
+        ByteToStr(mtempin, txt)
+        UART1_Write_text(txt)
+        UART1_Write_text("o")
+        ByteToStr(mtempout, txt)
+        UART1_Write_text(txt)
+        porta.1 = porta.1 xor 1
+  wend
+end.

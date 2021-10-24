@@ -1,0 +1,139 @@
+program CodigoSisterna
+
+
+'*****  Definicion de variables *****
+dim  flanco ,Tiempo,received_byte,viajero,set_altura,med_altura,decena,unidad as byte
+dim distancia as word
+dim txt_altura as string[3]
+
+
+const INICIO = $73
+'*****  Definicion de procedimientos *****
+'Encender y apagar un leds en 400ms
+sub procedure led()
+  porta=1
+  delay_ms(200)
+  porta=0
+  delay_ms(200)
+  porta=1
+  delay_ms(200)
+end sub
+'*****  Definicion de funcioness ****
+
+sub procedure interrupt                   ' Interrupt service routine
+
+    if INTCON.INTF = 1 then            ' External interupt (RB0 pin) ?
+       if(flanco=1) then
+              TMR0=0
+              flanco=0
+              OPTION_REG.INTEDG=0
+
+         else
+              Tiempo=TMR0
+              TMR0=0
+              flanco=1
+              OPTION_REG.INTEDG=1
+         end if
+
+         INTCON.INTF = 0
+         INTCON.INTE=1
+         INTCON.T0IF = 0
+
+    end if
+
+    if(PIR1.RCIF=1)then
+      if Usart_Data_Ready = 1 then
+                received_byte = Usart_Read
+       select case viajero
+            case 0
+                   set_altura=received_byte
+                   viajero=0
+       end select
+      end if
+
+
+       PIR1.RCIF=0   ' Si el dato a llegado limpio la bandera de recepcion
+       PIE1.RCIE=1   ' Habilitar nuevamente la interrupcion por USART
+     end if
+
+end sub
+sub procedure Pulso()
+  portc.5=1
+  Delay_50us
+  portc.5=0
+end sub
+
+'*****   Programa principal main  *****
+main:
+  OPTION_REG=%11000110      ' Desabilito resistores pull up y  asigno prescaler to TMR0 (128)
+  INTCON = %11000000        ' Enable external interrupts bit(7) and bit(6) de permiso q no se controlan con INTCON
+  
+  PIE1=%00100000
+
+  ' Configuracion de Puertos analogicos / digitales AN0 - AN13
+  ANSEL =  %00000000           'REGISTRO CONFIG. O DIGITAL, 1 ANALOGICO
+  ANSELH = %00000000           'REGISTRO CONFIG. O DIGITAL, 1 ANALOGICO
+
+  TMR0  = 0            ' Timer0 initial value (Fosc/4)*prescalador*(256-TMRO)
+
+  ' Configuracion de Puertos como entradas / salidas
+  trisa  = %00000000           ' Configuracion IN/OUT PORTA
+  trisb  = %00000001           ' Configuracion IN/OUT PORTB
+  trisc  = %10000000           ' Configuracion IN/OUT PORTC
+
+  ' Reset de salidas
+  PORTA  = %00000000           ' Inicializacion PORTA
+  PORTB  = %00000000           ' Inicializacion PORTB
+  PORTC  = %00000000           ' Inicializacion PORTC
+
+  Usart_Init(9600)
+  
+  flanco=1
+  Tiempo=0
+  set_altura=0
+  med_altura=0
+  viajero=0
+  received_byte=0
+  led()
+  INTCON.INTE=1
+
+
+
+  ' Lazo infinito Bucle While
+  while true
+  Pulso()
+  Delay_ms(50)
+  distancia=(Tiempo*128)/58
+  med_altura= (22 - distancia)
+  
+  PORTA = med_altura     'Tiempo=1 = 128us       Tiempo=195 = 25ms
+  
+if(set_altura <> 0 )then
+
+  if(med_altura >= set_altura )then
+    portb.5=0
+  else
+    portb.5=1
+  end if
+  
+ else
+    portb.5=0
+end if
+    
+  Delay_ms(50)
+  decena=(( med_altura /10) mod 10) + 48
+  unidad=( med_altura mod 10) + 48
+
+  ''ByteToStr(med_altura, txt_altura )
+  Usart_Write(INICIO)
+  Usart_Write(decena )
+  Usart_Write(unidad )
+  
+  ''Usart_Write_Text (txt_altura )
+  
+
+  
+  
+
+  wend
+end.

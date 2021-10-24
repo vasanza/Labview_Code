@@ -1,0 +1,16 @@
+main
+	UART1_Init
+	PWM1_Init
+	PWM2_Init
+	PWM1_Start
+	PWM2_Start
+	PWM1_Set_Duty
+		Mul_16x16_U
+	PWM2_Set_Duty
+		Mul_16x16_U
+	led
+	srf05_pulso
+		Div_16x16_U
+	UART1_Write
+interrupt
+	UART1_Read

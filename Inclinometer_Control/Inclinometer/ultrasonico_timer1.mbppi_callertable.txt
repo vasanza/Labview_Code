@@ -1,0 +1,23 @@
+main
+	led
+	Adc_Read
+		Delay_22us
+	UART1_Write_Text
+		UART1_Write
+	WordToStr
+		Div_16x16_U
+	UART1_Init
+	Word2Double
+		NRM3232
+			RES032
+			SETFUN32
+			FIXSIGN32
+	Div_32x32_FP
+		SETFDZ32
+		RES032
+		SETFOV32
+		SETFUN32
+	Double2Word
+		SETIOV3224
+interrupt
+	UART1_Read

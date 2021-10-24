@@ -1,0 +1,137 @@
+program CodigoCalentador
+
+dim analogico,temperatura,temp_ac,temp_prom as word
+dim unidad,decena,centena,flag,muestras,intensidad,recibido,i as byte
+dim txt as string[4]
+
+
+sub procedure interrupt()
+
+     if(PIR1.RCIF=1)then
+      if Usart_Data_Ready = 1 then
+          recibido = Usart_Read
+          if i=1 then
+             i=0
+             intensidad=recibido
+          end if
+          if i=2 then
+             i=0
+             if recibido = 1 then
+                portb.4=0
+                porta.1=0
+             else
+                portb.4=1
+                porta.1=1
+             end if
+          end if
+          if i=0 then
+             if recibido=0xA0 then
+                i=1
+             end if
+             if recibido=0xB0 then
+                i=2   '0xB0
+             end if
+          end if
+          
+      end if
+       PIR1.RCIF=0   ' Si el dato a llegado limpio la bandera de recepcion
+       PIE1.RCIE=1   ' Habilitar nuevamente la interrupcion por USART
+     end if
+
+     if(INTCON.INTF=1)then
+       if(intensidad > 0)then
+         PORTB.5=0
+
+         select case intensidad
+           case 1
+             TMR0=240
+           case 2
+             TMR0=225
+           case 3
+             TMR0=209
+           case 4
+             TMR0=193
+           case 5
+             TMR0=178
+           case 6
+             TMR0=162
+           case 7
+             TMR0=146
+           case 8
+             TMR0=131
+          end select
+          INTCON.T0IF=0
+          INTCON.T0IE=1
+       else
+         PORTB.5=1
+       end if
+        INTCON.INTF=0
+        INTCON.INTE =1
+
+     end if
+
+      if(INTCON.T0IF =1)then
+        PORTB.5=1
+        INTCON.T0IF=0
+        INTCON.T0IE=0
+       end if
+
+end sub
+
+main:
+
+  OPTION_REG=%11000101 ' Configuracion de Puertos analogicos / digitales AN0 - AN13
+  INTCON = 0
+  ANSEL =  %00000000           'REGISTRO CONFIG. O DIGITAL, 1 ANALOGICO
+  ANSELH = %00000010           'REGISTRO CONFIG. O DIGITAL, 1 ANALOGICO
+
+  ' Configuracion de Puertos como entradas / salidas
+  trisa  = %00000000           ' Configuracion IN/OUT PORTA
+  trisb  = %00001001           ' Configuracion IN/OUT PORTB
+  trisc  = %10000000           ' Configuracion IN/OUT PORTC
+
+
+  ' Reset de salidas
+  PORTA  = %00000000           ' Inicializacion PORTA
+  PORTB  = %00000000           ' Inicializacion PORTC
+  PORTC  = %00000000           ' Inicializacion PORTC
+
+  flag=0
+  intensidad=0
+  muestras=0
+  temp_ac=0
+  temp_prom=0
+  USART_Init(9600)
+  Delay_ms(100)
+  INTCON =%11010000
+  PIE1 = %00100000
+  PIR1=0
+  Delay_ms(100)
+  
+  i=0
+
+while  TRUE      ' Lazo infinito Bucle While
+
+ do
+         analogico = Adc_Read(9)
+         temperatura=(analogico*100/230) ''
+         inc(muestras)
+         Delay_ms(2)
+         temp_ac= temp_ac + temperatura
+ loop until (muestras >=200)
+         temp_prom = (temp_ac /200)
+
+         ByteToStr(temp_prom,txt)
+         Usart_Write_Text("t")
+         Usart_Write_Text(txt)
+         
+         
+          muestras=0
+          temp_ac=0
+          temp_prom=0
+
+          Delay_ms(500)
+
+wend
+  end.
+

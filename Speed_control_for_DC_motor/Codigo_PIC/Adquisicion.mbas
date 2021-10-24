@@ -1,0 +1,133 @@
+
+'*******************     www.ideastechnology.com      **************************
+'
+' * Nombre proyecto:
+'     SISTEMA DE ADQUISICION Y ALMACENAMIENTO DE DATOS CON MATLAB
+' * Descripcion:
+'     Este proyecto consiste en leer un dato analogico proveniente de un potenciometro
+'     para controlar el nivel de PWM que le aplicamos al motor por medio del puente H
+'     la señal digital que proviene del encoder optico es procesada y tranformada
+'     a revoluciones por minuto (RPM) y posteriormente enviada por comunicacion serial
+'     RS232 al computador donde MATLAB se encargara de tomar los datos de (PWM y RPM).
+' * Configuraciones:
+'     Microcontrolador:    PIC16F886
+'     Oscillator:          INT_RC_OSC_NOCLKOUT, 4MHz
+'*******************************************************************************
+
+'*****         Nombre proyecto       *****
+program Adquisicion
+'*****  Declaración de Variables *****
+ dim analogico as word
+ dim Velocidad as byte
+ dim txt as char
+ dim count as word
+ dim Frecuencia as word
+ dim inicio as byte
+ dim flanco as byte
+ dim tx_v,tx_f as string[4]
+ dim receive,setpoint,modo as byte
+'*****   Programa principal main  *****
+'-----------------------------------------
+sub procedure interrupt                   ' Interrupt service routine
+
+'  if INTCON.RBIF = 1 then                 ' Changes on RB4-RB7 ?
+'     INTCON.RBIF = 0
+   if INTCON.INTF = 1 then            ' External interupt (RB0 pin) ?
+          count = count+1
+          if inicio=1 then
+          T1CON = $31
+          inicio=0
+          end if
+          INTCON.INTF = 0
+    end if
+      if  PIR1.TMR1IF = 1 then
+            TMR1H = $0B
+            TMR1L = $DB
+            Frecuencia = count*2
+            count =0
+            flanco=1
+            PIR1.TMR1IF = 0            ' clear TMR1IF
+
+        end if
+end sub
+
+'-*---------------------------------------
+main:
+  OPTION_REG=%11000000
+  INTCON = %11010000       ' Enable external interrupts bit(7) and bit(6) de permiso q no se controlan con INTCON
+  T1CON = $30
+  PIR1.TMR1IF = 0            ' clear TMR1IF
+  TMR1H = $0B                ' initialize Timer1 register
+  TMR1L = $DB
+   PIE1.TMR1IE  = 1         ' enable Timer1 interrupt
+   
+  ' Configuracion de Puertos analogicos / digitales AN0 - AN13
+  ANSEL =  %00000001           'REGISTRO CONFIG. O DIGITAL, 1 ANALOGICO
+  ANSELH = %00000000           'REGISTRO CONFIG. O DIGITAL, 1 ANALOGICO
+
+  ' Configuracion de Puertos como entradas / salidas
+  trisa  = %00000001           ' Configuracion IN/OUT PORTA
+  trisb  = %00000001           ' Configuracion IN/OUT PORTB
+  trisc  = %10000000           ' Configuracion IN/OUT PORTC
+
+  ' Reset de salidas
+  PORTA  = %00000000           ' Inicializacion PORTA
+  PORTC  = %00000000           ' Inicializacion PORTC
+
+  'USART
+  Uart1_Init(9600)                 ' Initialize USART module
+  ' Lazo infinito Bucle While
+  PWM1_Init(5000)                    ' Initialize PWM1 module at 5KHz
+  PWM2_Init(5000)                    ' Initialize PWM2 module at 5KHz
+
+  PWM1_Start()                       ' start PWM1
+  PWM2_Start()                       ' start PWM2
+  inicio=1
+  modo=2 ''modo manual
+  
+  while true
+         if (UART1_Data_Ready() = 1) then
+            receive = UART1_Read()
+'            if receive <= 100 then '' p - me envian modo pc
+'               ''modo=1
+'               Velocidad=receive
+'            end if
+            if receive= 109 then '' m - me envian modo manual
+               analogico = Adc_Read(0)>>2
+               delay_ms(5)
+               Velocidad=analogico
+               ''modo=2
+            else
+               Velocidad=(receive - 48)*28.33
+            end if
+         end if
+         
+'         if modo = 2 then   ''modo manual
+'           analogico = Adc_Read(0)>>2
+'           delay_ms(5)
+'           Velocidad=analogico
+         ''else               ''modo pc
+            ''if receive <= 100 then
+                ''Velocidad=receive ''* 0.255
+            ''end if
+         ''end if
+         if Velocidad >=250 then
+            PWM1_Stop()
+         else
+            PWM1_Start()
+         end if
+         PWM1_Set_Duty(Velocidad)
+         PORTA=255-Velocidad
+         ByteToStr(Frecuencia,tx_f)
+         ByteToStr(255-Velocidad,tx_v)
+         UART1_Write(116)''t
+         UART1_Write_Text(tx_v)
+         UART1_Write(102)''f
+         UART1_Write_Text(tx_f)
+         UART1_Write(10)
+         UART1_Write(13)
+         delay_ms(50)
+         
+         'PWM2_Set_Duty(Velocidad)
+  wend
+end.

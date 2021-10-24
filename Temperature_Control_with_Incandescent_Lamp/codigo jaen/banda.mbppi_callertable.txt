@@ -1,0 +1,8 @@
+main
+	led
+	Adc_Read
+		Delay_22us
+	UART1_Write
+	UART1_Init
+interrupt
+	UART1_Read

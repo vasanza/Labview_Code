@@ -1,0 +1,73 @@
+program Codigo_Termocupla_LM35
+'*****  Declaración de Variables *****
+ dim analog_termocupla,analog_LM35,temp_term,temp_LM35,temp_prom_term,temp_prom_LM35 as word
+ dim temp_term_grad,muestras,temp_LM35_grad as byte
+ dim tx_term,tx_LM35 as string[4]
+'*****   Programa principal main  *****
+main:
+  OPTION_REG=%10000000 ' Configuracion de Puertos analogicos / digitales AN0 - AN13
+  ANSEL =  %00000000           'REGISTRO CONFIG. O DIGITAL, 1 ANALOGICO
+  ANSELH = %00001010           'REGISTRO CONFIG. O DIGITAL, 1 ANALOGICO
+
+  ' Configuracion de Puertos como entradas / salidas
+  trisa  = %00000000           ' Configuracion IN/OUT PORTA
+  trisb  = %00011000           ' Configuracion IN/OUT PORTB
+  trisc  = %10000000           ' Configuracion IN/OUT PORTC
+
+
+  ' Reset de salidas
+  PORTA  = %00000000           ' Inicializacion PORTA
+  PORTB  = %00000000           ' Inicializacion PORTC
+  PORTC  = %00000000           ' Inicializacion PORTC
+
+  muestras=0
+  temp_prom_term =0
+  temp_prom_LM35=0
+  temp_term=0
+  temp_LM35=0
+  temp_term_grad=0
+  temp_LM35_grad=0
+  USART_Init(9600)
+  Delay_ms(100)
+
+  ' Lazo infinito Bucle While
+  while true
+        do
+
+         analog_LM35= Adc_Read(9)
+         analog_termocupla = Adc_Read(11)
+         inc(muestras)
+         Delay_ms(1)
+         temp_term= temp_term + analog_termocupla
+         temp_LM35= temp_LM35 + analog_LM35
+         
+        loop until (muestras >=200)
+        
+
+         temp_prom_LM35 = (temp_LM35 /200)
+         temp_prom_term = (temp_term /200)
+         
+         temp_LM35_grad=(temp_prom_LM35*100/230)
+         temp_term_grad = temp_prom_term + 16
+         
+         ByteToStr(temp_term_grad ,tx_term)
+         ByteToStr (temp_LM35_grad ,tx_LM35)
+         
+         USART_Write(116)
+         Usart_Write_Text(tx_term)
+         USART_Write (102)
+         Usart_Write_Text(tx_LM35)
+         USART_Write(10)
+         USART_Write(13)
+         
+         muestras=0
+         temp_LM35=0
+         temp_term=0
+         temp_prom_LM35=0
+         temp_prom_term=0
+         temp_LM35_grad=0
+         temp_term_grad =0
+
+
+  wend
+end.

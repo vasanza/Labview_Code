@@ -1,0 +1,40 @@
+[DeviceName]
+Value=P16F886
+[DeviceClock]
+Value=4
+[MainUnit]
+Value=Codigo_Termocupla_LM35.pbas
+[DeviceFlags]
+Count=11
+Value0=_INTOSCIO = $3FFC
+Value1=_WDT_OFF = $3FF7
+Value2=_PWRTE_OFF = $3FFF
+Value3=_MCLRE_OFF = $3FDF
+Value4=_CP_OFF = $3FFF
+Value5=_CPD_OFF = $3FFF
+Value6=_BOR_OFF = $3CFF
+Value7=_IESO_OFF = $3BFF
+Value8=_FCMEN_OFF = $37FF
+Value9=_LVP_OFF = $2FFF
+Value10=_DEBUG_OFF = $3FFF
+[BuildSimDebug]
+Build=0
+SimDebug=0
+[ProjectFiles]
+Count=0
+[OtherFiles]
+Count=1
+Value0=C:\Documents and Settings\Administrador\Escritorio\Codigo Termocupla LM35\Codigo_Termocupla_LM35.pbas
+Value1=\\Usuario\PC_IDEAS\IDEAS&TECNOLOGIA\Diapositivas para Seminarios\Diseño y construccion de Robots utilizando microcontroladores Nivel 2\Ejercicio 13 Sumobot\Codigo Ejercicio 12\Codigo_Sumobot.pbas
+[TabIndex]
+Value=0
+[SearchPath]
+Count=6
+Value0=C:\Archivos de programa\Mikroelektronika\mikroBasic\Defs\
+Value1=C:\Archivos de programa\Mikroelektronika\mikroBasic\Uses\p16\
+Value2=C:\Documents and Settings\Administrador\Escritorio\Codigo Termocupla LM35\
+Value3=C:\Program Files\Mikroelektronika\mikroBasic\Defs\
+Value4=C:\Program Files\Mikroelektronika\mikroBasic\Uses\p16\
+Value5=C:\Users\IDEASTECHNOLOGY\Desktop\Maqueta Temperatura\Codigo Termocupla LM35\
+[EEPROMinfo]
+isused=0

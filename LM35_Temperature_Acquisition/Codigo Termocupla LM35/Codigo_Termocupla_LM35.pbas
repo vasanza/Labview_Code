@@ -1,0 +1,100 @@
+program Codigo_Termocupla_LM35
+'*****  Declaración de Variables *****
+ dim analog_termocupla,analog_LM35,temp_term,temp_LM35,temp_prom_term as word
+ dim temp_term_grad,muestras as byte',temp_LM35_grad as byte
+ dim temp_LM35_grad,temp_prom_LM35 as float
+ dim tx_term,tx_LM35 as string[4]
+ dim received_byte,band as byte
+ 
+sub procedure interrupt                   ' Interrupt service routine
+    if PIR1.RCIF = 1 then            ' External interupt (RB0 pin) ?
+
+     if Usart_Data_Ready = 1 then   ' If data is received
+         received_byte = Usart_Read   ' Read received data
+'         if band=1 then
+'            band=0
+            porta= received_byte
+'         end if
+  '       if received_byte = 73 then  's
+'            band=1
+'         end if
+      end if
+
+    end if
+
+    PIR1.RCIF = 0
+    PIE1.RCIE = 1
+end sub
+ 
+ 
+'*****   Programa principal main  *****
+main:
+  OPTION_REG=%10000000 ' Configuracion de Puertos analogicos / digitales AN0 - AN13
+  INTCON= %11000000
+  PIE1=  %00100000
+  
+  ANSEL =  %00000000           'REGISTRO CONFIG. O DIGITAL, 1 ANALOGICO
+  ANSELH = %00000010          'AN9 -> Analgo 'REGISTRO CONFIG. O DIGITAL, 1 ANALOGICO
+
+  ' Configuracion de Puertos como entradas / salidas
+  trisa  = %00000000           ' Configuracion IN/OUT PORTA
+  trisb  = %00001000           ' Configuracion IN/OUT PORTB
+  trisc  = %10000000           ' Configuracion IN/OUT PORTC
+
+
+  ' Reset de salidas
+  PORTA  = %00000000           ' Inicializacion PORTA
+  PORTB  = %00000000           ' Inicializacion PORTC
+  PORTC  = %00000000           ' Inicializacion PORTC
+
+  muestras=0
+  temp_prom_term =0
+  temp_prom_LM35=0
+  temp_term=0
+  temp_LM35=0
+  temp_term_grad=0
+  temp_LM35_grad=0
+  band=0
+  USART_Init(9600)
+  Delay_ms(100)
+
+  ' Lazo infinito Bucle While
+  while true
+
+    
+        if muestras <=250  then
+
+         analog_LM35= Adc_Read(9)
+         'analog_termocupla = Adc_Read(11)
+         inc(muestras)
+         Delay_ms(2)
+         'temp_term= temp_term + analog_termocupla
+         temp_LM35= temp_LM35 + analog_LM35
+        else
+          temp_prom_LM35 = (temp_LM35 /250)
+         'temp_prom_term = (temp_term /200)
+
+         temp_LM35_grad=(temp_prom_LM35*100/230)
+         'temp_term_grad = temp_prom_term + 16
+
+         'ByteToStr(temp_term_grad ,tx_term)
+         FloatToStr (temp_LM35_grad ,tx_LM35)
+
+         'USART_Write(116)  't
+         'Usart_Write_Text(tx_term)
+         USART_Write (102)  'f
+         Usart_Write_Text(tx_LM35)
+         USART_Write(10)
+         USART_Write(13)
+
+         muestras=0
+         temp_LM35=0
+         temp_term=0
+         temp_prom_LM35=0
+         'temp_prom_term=0
+         temp_LM35_grad=0
+         'temp_term_grad =0
+        end if
+
+  wend
+end.

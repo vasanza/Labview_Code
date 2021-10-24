@@ -1,0 +1,31 @@
+main
+	PWM1_Start
+	PWM2_Start
+	UART1_Data_Ready
+	UART1_Read
+	Adc_Read
+		Delay_22us
+	PWM1_Stop
+	PWM1_Set_Duty
+		Mul_16x16_U
+	ByteToStr
+		Div_8x8_U
+	UART1_Write
+	UART1_Write_Text
+		UART1_Write
+	UART1_Init
+	PWM1_Init
+	PWM2_Init
+	Byte2Double
+		NRM4032
+			RES032
+			SETFUN32
+			FIXSIGN32
+			SETFOV32
+	Mul_32x32_FP
+		RES032
+		SETFOV32
+		SETFUN32
+	Double2Byte
+		SETIOV3224
+interrupt
