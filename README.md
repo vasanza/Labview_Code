@@ -25,10 +25,10 @@ Some examples of automation are presented. These examples include microcontrolle
 ![image](https://user-images.githubusercontent.com/12642226/138617241-79dca9ca-e94f-48f0-a470-cf9b0f849405.png)
 
 # Videos:
-- Speed_control_for_three-phase_motor
-https://www.youtube.com/watch?v=3tvSTRYhp8s
-https://www.youtube.com/watch?v=GeJddhVaLFg
-- Speed_control_for_DC_motor
+## Speed_control_for_three-phase_motor
+- https://www.youtube.com/watch?v=3tvSTRYhp8s
+- https://www.youtube.com/watch?v=GeJddhVaLFg
+## Speed_control_for_DC_motor
 https://www.youtube.com/watch?v=Nh26pynDmNA
 - Position_Control_with_Brushless_Motor
 https://www.youtube.com/watch?v=dsUe2mIGASA
