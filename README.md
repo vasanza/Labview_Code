@@ -54,18 +54,19 @@ Some examples of automation are presented. These examples include microcontrolle
 # HARDWARE MICROCONTROLLER
 - PIC16F886
 
-# CLONE
+# Keynote
+## Clone
 - git status
 - git clone https://github.com/vasanza/Labview_Code.git
 
-# SWITCHED TO BRANCH
+## Switched to Branch
 - git branch -a
 - git checkout NameBranch
 
-# New Branch
+## New Branch
 - git checkout -b NameBranch
 
-# PUSH
+## Push
 - git pull origin NameBranch
 - git status
 - git add .
